@@ -2,6 +2,8 @@
 import archiver from 'archiver';
 import * as fs from 'fs';
 
+import { videoFolder, videoName } from '.';
+import { uploadToS3 } from './aws_s3';
 import { Logger } from './logs/logger';
 
 export const createZip = async (
@@ -15,6 +17,12 @@ export const createZip = async (
 
   output.on('close', () => {
     Logger.info('Images zip created successfully');
+    uploadToS3(
+      imagesZipPath,
+      'imageszip',
+      `${videoName}_images.zip`,
+      videoFolder
+    );
   });
 
   archive.on('error', (err) => {

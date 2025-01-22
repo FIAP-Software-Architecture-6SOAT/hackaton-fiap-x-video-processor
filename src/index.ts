@@ -4,7 +4,7 @@ import ffmpeg from 'fluent-ffmpeg';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { downloadFromS3, uploadToS3 } from './aws_s3';
+import { downloadFromS3 } from './aws_s3';
 import { createZip } from './create_zip';
 import { Logger } from './logs/logger';
 import { clearOutputFolder } from './utils';
@@ -14,7 +14,7 @@ Logger.info('Starting video processing...');
 const videoFullName = process.env.VIDEO_NAME as string;
 Logger.info('Video full name: %s', videoFullName);
 
-const videoName = videoFullName.split('.').slice(0, -1).join('.');
+export const videoName = videoFullName.split('.').slice(0, -1).join('.');
 const videoPath = path.join(__dirname, videoFullName);
 const imagesZipPath = path.join(__dirname, `${videoName}/images.zip`);
 const outputFolder = path.join(__dirname, `${videoName}/images/`);
@@ -52,7 +52,6 @@ const processVideo = async (): Promise<void> => {
       if (currentTime >= duration) {
         Logger.info('Video processing finished');
         await createZip(outputFolder, imagesZipPath);
-        await uploadToS3(imagesZipPath, 'imageszip', `${videoName}_images.zip`);
         return;
       }
 

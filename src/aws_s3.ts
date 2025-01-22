@@ -10,7 +10,6 @@ import * as fs from 'fs';
 import { pipeline } from 'stream';
 import { promisify } from 'util';
 
-import { videoFolder } from '.';
 import { Logger } from './logs/logger';
 import { deleteFolder } from './utils';
 
@@ -51,7 +50,8 @@ export const downloadFromS3 = async (
 export const uploadToS3 = async (
   filePath: string,
   bucketName: string,
-  key: string
+  key: string,
+  videoFolder: string
 ): Promise<void> => {
   try {
     const fileContent = fs.readFileSync(filePath);
