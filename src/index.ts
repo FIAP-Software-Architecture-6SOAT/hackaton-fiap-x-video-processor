@@ -12,6 +12,7 @@ import { clearOutputFolder } from './utils';
 Logger.info('Starting video processing...');
 
 const videoFullName = process.env.VIDEO_NAME as string;
+
 Logger.info('Video full name: %s', videoFullName);
 
 export const videoName = videoFullName.split('.').slice(0, -1).join('.');
@@ -19,13 +20,13 @@ const videoPath = path.join(__dirname, videoFullName);
 const imagesZipPath = path.join(__dirname, `${videoName}/images.zip`);
 const outputFolder = path.join(__dirname, `${videoName}/images/`);
 export const videoFolder = path.join(__dirname, videoName);
+const imagesZipKey = `${videoName}_images.zip`;
 
 const processVideo = async (): Promise<void> => {
-  const bucketName = 'processvideos';
   const key = videoFullName;
 
   Logger.info('Dowloading video from S3...');
-  await downloadFromS3(bucketName, key, videoPath);
+  await downloadFromS3(key, videoPath);
 
   if (!fs.existsSync(outputFolder)) {
     fs.mkdirSync(outputFolder, { recursive: true });
@@ -51,7 +52,7 @@ const processVideo = async (): Promise<void> => {
     const processFrame = async (): Promise<void> => {
       if (currentTime >= duration) {
         Logger.info('Video processing finished');
-        await createZip(outputFolder, imagesZipPath);
+        await createZip(outputFolder, imagesZipPath, imagesZipKey, videoFolder);
         return;
       }
 

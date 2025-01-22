@@ -11,6 +11,7 @@ import { pipeline } from 'stream';
 import { promisify } from 'util';
 
 import { Logger } from './logs/logger';
+import { updateDocument } from './mongodb';
 import { deleteFolder } from './utils';
 
 const pipelineAsync = promisify(pipeline);
@@ -25,13 +26,13 @@ const s3Client = new S3Client({
 });
 
 export const downloadFromS3 = async (
-  bucketName: string,
   key: string,
   downloadPath: string
 ): Promise<void> => {
   try {
+    const bucket = 'processvideos';
     const command = new GetObjectCommand({
-      Bucket: bucketName,
+      Bucket: bucket,
       Key: key,
     });
     const response = await s3Client.send(command);
@@ -49,14 +50,14 @@ export const downloadFromS3 = async (
 
 export const uploadToS3 = async (
   filePath: string,
-  bucketName: string,
   key: string,
   videoFolder: string
 ): Promise<void> => {
+  const bucket = 'imageszip';
   try {
     const fileContent = fs.readFileSync(filePath);
     const command = new PutObjectCommand({
-      Bucket: bucketName,
+      Bucket: bucket,
       Key: key,
       Body: fileContent,
     });
@@ -65,6 +66,17 @@ export const uploadToS3 = async (
 
     // Delete the video folder after upload
     deleteFolder(videoFolder);
+
+    // Update the document in MongoDB
+    await updateDocument('videos', process.env.VIDEO_ID as string, {
+      imagesZipPath: {
+        key,
+        bucket,
+      },
+      status: 'Concluído',
+    });
+
+    Logger.info('Video Document updated successfully.');
   } catch (err) {
     Logger.error('Error uploading file to S3: %s', err);
   }
