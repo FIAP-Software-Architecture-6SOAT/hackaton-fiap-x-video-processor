@@ -10,7 +10,7 @@ echo "Coverage: $coverage"
 # Convert coverage percentage to a float
 coverage_num=$(echo "$coverage" | sed 's/%//' | bc -l)  # Use bc for floating-point arithmetic
 
-readonly minimum_coverage=18
+readonly minimum_coverage=50
 
 # Check if coverage is below the threshold
 if (( $(bc <<< "$coverage_num < $minimum_coverage") )); then  # Use bc for float comparison
