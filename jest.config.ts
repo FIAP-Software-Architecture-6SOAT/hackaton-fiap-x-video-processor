@@ -1,7 +1,7 @@
 import type { Config } from '@jest/types';
 
 export const produto: Config.InitialProjectOptions = {
-  displayName: 'Video Processor',
+  displayName: 'FIAP X - Video Processor',
   testEnvironment: 'node',
   testMatch: ['<rootDir>/src/**/*.test.ts', '<rootDir>/src/**/*.steps.ts'],
   moduleNameMapper: {

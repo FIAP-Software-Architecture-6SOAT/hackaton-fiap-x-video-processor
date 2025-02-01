@@ -1,5 +1,5 @@
 # Use uma imagem base que já tenha Node.js instalado
-FROM node:18-alpine
+FROM node:22-alpine
 
 # Instale ffmpeg e ffprobe
 RUN apk add --no-cache ffmpeg

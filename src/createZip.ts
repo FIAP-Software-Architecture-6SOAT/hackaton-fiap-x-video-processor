@@ -1,20 +1,28 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import archiver from 'archiver';
 import * as fs from 'fs';
+import path from 'path';
 
-import { Logger } from './logs/logger';
+import { uploadToS3 } from './aws';
+import { Logger } from './logger';
+import type { VideoDocument } from './videoDocument';
 
 export const createZip = async (
   outputFolder: string,
-  imagesZipPath: string
+  videoName: string,
+  videoDocument: VideoDocument
 ): Promise<void> => {
-  const output = fs.createWriteStream(imagesZipPath);
+  const fileZipPath = path.join(__dirname, `${videoName}/images.zip`);
+  const imagesZipKey = `${videoName}_images.zip`;
+
+  const output = fs.createWriteStream(fileZipPath);
   const archive = archiver('zip', {
     zlib: { level: 9 },
   });
 
   output.on('close', () => {
     Logger.info('Images zip created successfully');
+    uploadToS3(fileZipPath, imagesZipKey, videoDocument);
   });
 
   archive.on('error', (err) => {
