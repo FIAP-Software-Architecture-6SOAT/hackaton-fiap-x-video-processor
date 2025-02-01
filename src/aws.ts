@@ -6,13 +6,17 @@ import {
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
+import dotenv from 'dotenv';
 import * as fs from 'fs';
 import { pipeline } from 'stream';
 import { promisify } from 'util';
 
-import { Logger } from './logs/logger';
+import { Logger } from './logger';
 import { updateDocument } from './mongodb';
-import { deleteFolder } from './utils';
+import { sendEmail } from './sendEmail';
+import type { VideoDocument } from './videoDocument';
+
+dotenv.config();
 
 const pipelineAsync = promisify(pipeline);
 
@@ -30,54 +34,65 @@ export const downloadFromS3 = async (
   downloadPath: string
 ): Promise<void> => {
   try {
-    const bucket = 'processvideos';
+    const BUCKET = 'processvideos';
     const command = new GetObjectCommand({
-      Bucket: bucket,
+      Bucket: BUCKET,
       Key: key,
     });
     const response = await s3Client.send(command);
 
     if (response.Body) {
-      await pipelineAsync(response.Body, fs.createWriteStream(downloadPath));
-      Logger.info(`File downloaded successfully to ${downloadPath}`);
+      await pipelineAsync(
+        response.Body as unknown as NodeJS.ReadableStream,
+        fs.createWriteStream(downloadPath)
+      );
+      Logger.info(`File downloaded successfully`);
     } else {
       Logger.error('No data found in S3 response');
     }
-  } catch (err) {
-    Logger.error('Error downloading file from S3: %s', err);
+  } catch (error) {
+    Logger.error('Error downloading file from S3: %s', error);
+    throw new Error(
+      error instanceof Error
+        ? `Error downloading file from S3: ${error.message}`
+        : String(error)
+    );
   }
 };
 
 export const uploadToS3 = async (
   filePath: string,
   key: string,
-  videoFolder: string
+  videoDocument: VideoDocument
 ): Promise<void> => {
-  const bucket = 'imageszip';
+  const BUCKET = 'imageszip';
   try {
     const fileContent = fs.readFileSync(filePath);
     const command = new PutObjectCommand({
-      Bucket: bucket,
+      Bucket: BUCKET,
       Key: key,
       Body: fileContent,
     });
     await s3Client.send(command);
-    Logger.info('File uploaded successfully.');
-
-    // Delete the video folder after upload
-    deleteFolder(videoFolder);
+    Logger.info('File uploaded successfully');
 
     // Update the document in MongoDB
-    await updateDocument('videos', process.env.VIDEO_ID as string, {
+    await updateDocument(process.env.VIDEO_ID as string, {
       imagesZipPath: {
         key,
-        bucket,
+        bucket: BUCKET,
       },
       status: 'Concluído',
     });
-
-    Logger.info('Video Document updated successfully.');
-  } catch (err) {
-    Logger.error('Error uploading file to S3: %s', err);
+  } catch (error) {
+    Logger.error('Error uploading file to S3: %s', error);
+    await sendEmail(videoDocument);
+    await updateDocument(process.env.VIDEO_ID as string, {
+      error:
+        error instanceof Error
+          ? `Error uploading file to S3: ${error.message}`
+          : String(error),
+      status: 'Erro',
+    });
   }
 };

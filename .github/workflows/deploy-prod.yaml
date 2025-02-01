@@ -1,0 +1,24 @@
+name: Deploy Prod
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - 'src/**'
+  workflow_dispatch:
+
+jobs:
+  deploy-to-dockerhub:
+    name: Deploy to DockerHub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to DockerHub
+        run: docker login -u danilocassola -p ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t danilocassola/fiap-x-video-processor:v1 .
+          docker push danilocassola/fiap-x-video-processor:v1
