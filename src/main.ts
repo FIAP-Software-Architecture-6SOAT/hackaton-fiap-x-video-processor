@@ -15,7 +15,7 @@ dotenv.config();
 
 let videoDocument: VideoDocument | null = null;
 
-const processVideo = async (): Promise<void> => {
+export const processVideo = async (): Promise<void> => {
   Logger.info('Starting video processing...');
 
   videoDocument = await getDocumentById(process.env.VIDEO_ID as string);
