@@ -34,7 +34,7 @@ export const downloadFromS3 = async (
   downloadPath: string
 ): Promise<void> => {
   try {
-    const BUCKET = 'processvideos';
+    const BUCKET = 'videos-process';
     const command = new GetObjectCommand({
       Bucket: BUCKET,
       Key: key,
@@ -65,7 +65,7 @@ export const uploadToS3 = async (
   key: string,
   videoDocument: VideoDocument
 ): Promise<void> => {
-  const BUCKET = 'imageszip';
+  const BUCKET = 'videos-images-zip';
   try {
     const fileContent = fs.readFileSync(filePath);
     const command = new PutObjectCommand({
