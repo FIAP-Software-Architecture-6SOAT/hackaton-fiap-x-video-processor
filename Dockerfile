@@ -20,4 +20,4 @@ RUN npm install
 COPY . .
 
 # Comando para iniciar a aplicação
-ENTRYPOINT ["sh", "-c", "npm run process-video --video_name=$VIDEO_NAME"]
+ENTRYPOINT ["sh", "-c", "npm run process-video"]
