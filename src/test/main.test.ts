@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-invalid-this */
 import { jest } from '@jest/globals';
 import ffmpeg from 'fluent-ffmpeg';
 
@@ -39,9 +40,7 @@ jest.mock('../createZip');
 
 describe('processVideo', () => {
   beforeAll(() => {
-    jest
-      .spyOn({ downloadFromS3 }, 'downloadFromS3')
-      .mockResolvedValue(undefined);
+    jest.spyOn({ downloadFromS3 }, 'downloadFromS3').mockResolvedValue(undefined);
   });
 
   beforeEach(() => {
@@ -49,25 +48,20 @@ describe('processVideo', () => {
   });
 
   it('should process video successfully', async () => {
-    (
-      getDocumentById as jest.MockedFunction<typeof getDocumentById>
-    ).mockResolvedValue({
+    (getDocumentById as jest.MockedFunction<typeof getDocumentById>).mockResolvedValue({
       fileName: 'test.mp4',
       videoPath: { key: 'test-key' },
     } as VideoDocument);
     (ffmpeg.ffprobe as jest.Mock).mockImplementation((path, callback) => {
-      (
-        callback as (
-          err: Error | null,
-          data: { format: { duration: number } }
-        ) => void
-      )(null, { format: { duration: 60 } });
+      (callback as (err: Error | null, data: { format: { duration: number } }) => void)(null, {
+        format: { duration: 60 },
+      });
     });
     (ffmpeg as unknown as jest.Mock).mockReturnValue({
       screenshots: jest.fn().mockReturnThis(),
       on: jest.fn().mockImplementation((event, callback) => {
         if (event === 'end') {
-          callback();
+          (callback as () => void)();
         }
         return this;
       }),
@@ -83,9 +77,7 @@ describe('processVideo', () => {
   });
 
   it('should handle errors during video processing', async () => {
-    (
-      getDocumentById as jest.MockedFunction<typeof getDocumentById>
-    ).mockResolvedValue(null);
+    (getDocumentById as jest.MockedFunction<typeof getDocumentById>).mockResolvedValue(null);
 
     await expect(processVideo()).rejects.toThrow('Video document not found');
   });

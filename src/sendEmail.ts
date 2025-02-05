@@ -15,9 +15,7 @@ const client = new SESClient({
   },
 });
 
-export const sendEmail = async (
-  videoDocument: VideoDocument
-): Promise<void> => {
+export const sendEmail = async (videoDocument: VideoDocument): Promise<void> => {
   const params = {
     Destination: {
       ToAddresses: [videoDocument.user.email],

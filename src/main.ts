@@ -72,11 +72,7 @@ export const processVideo = async (): Promise<void> => {
         })
         .on('error', (e) => {
           reject(
-            new Error(
-              `Error processing frame: ${
-                e instanceof Error ? e.message : String(e)
-              }`
-            )
+            new Error(`Error processing frame: ${e instanceof Error ? e.message : String(e)}`)
           );
         });
     });
@@ -93,10 +89,7 @@ processVideo().catch(async (error) => {
   Logger.error('Error processing video: %s', error);
   await sendEmail(videoDocument as VideoDocument);
   await updateDocument(process.env.VIDEO_ID as string, {
-    error:
-      error instanceof Error
-        ? `Error processing video: ${error.message}`
-        : String(error),
+    error: error instanceof Error ? `Error processing video: ${error.message}` : String(error),
     status: 'Erro',
   });
 });
