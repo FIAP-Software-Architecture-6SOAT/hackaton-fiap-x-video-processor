@@ -15,16 +15,10 @@ const getCollection = async (): Promise<Collection> => {
   return database.collection('videos');
 };
 
-export const updateDocument = async (
-  documentId: string,
-  update: object
-): Promise<void> => {
+export const updateDocument = async (documentId: string, update: object): Promise<void> => {
   try {
     const collection = await getCollection();
-    const result = await collection.updateOne(
-      { _id: new ObjectId(documentId) },
-      { $set: update }
-    );
+    const result = await collection.updateOne({ _id: new ObjectId(documentId) }, { $set: update });
 
     if (result.matchedCount > 0) {
       Logger.info('Video document updated successfully');
@@ -38,9 +32,7 @@ export const updateDocument = async (
   }
 };
 
-export const getDocumentById = async (
-  videoId: string
-): Promise<VideoDocument | null> => {
+export const getDocumentById = async (videoId: string): Promise<VideoDocument | null> => {
   try {
     const collection = await getCollection();
 

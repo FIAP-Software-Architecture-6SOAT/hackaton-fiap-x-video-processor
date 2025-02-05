@@ -9,7 +9,9 @@ import type { VideoDocument } from '../videoDocument';
 
 jest.mock('fs');
 jest.mock('archiver');
-jest.mock('../logger');
+jest.mock('../logger', () => ({
+  Logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() },
+}));
 jest.mock('../aws', () => ({
   uploadToS3: jest.fn(),
 }));
@@ -32,9 +34,7 @@ describe('createZip', () => {
   };
 
   beforeAll(() => {
-    (fs.createWriteStream as jest.Mock).mockImplementation(
-      mockCreateWriteStream
-    );
+    (fs.createWriteStream as jest.Mock).mockImplementation(mockCreateWriteStream);
     (archiver as unknown as jest.Mock).mockImplementation(() => mockArchive);
     jest.spyOn({ uploadToS3 }, 'uploadToS3').mockResolvedValue(undefined);
   });
@@ -72,8 +72,8 @@ describe('createZip', () => {
     const mockError = new Error('Archiving failed');
     mockArchive.finalize.mockRejectedValueOnce(mockError);
 
-    await expect(
-      createZip(mockOutputFolder, mockVideoName, mockVideoDocument)
-    ).rejects.toThrow(mockError);
+    await expect(createZip(mockOutputFolder, mockVideoName, mockVideoDocument)).rejects.toThrow(
+      mockError
+    );
   });
 });

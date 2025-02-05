@@ -1,11 +1,7 @@
 /* eslint-disable no-process-env */
 import '@aws-sdk/crc64-nvme-crt';
 
-import {
-  GetObjectCommand,
-  PutObjectCommand,
-  S3Client,
-} from '@aws-sdk/client-s3';
+import { GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import dotenv from 'dotenv';
 import * as fs from 'fs';
 import { pipeline } from 'stream';
@@ -29,10 +25,7 @@ const s3Client = new S3Client({
   },
 });
 
-export const downloadFromS3 = async (
-  key: string,
-  downloadPath: string
-): Promise<void> => {
+export const downloadFromS3 = async (key: string, downloadPath: string): Promise<void> => {
   try {
     const BUCKET = process.env.BUCKET_VIDEOS_NAME;
     const command = new GetObjectCommand({
@@ -53,9 +46,7 @@ export const downloadFromS3 = async (
   } catch (error) {
     Logger.error('Error downloading file from S3: %s', error);
     throw new Error(
-      error instanceof Error
-        ? `Error downloading file from S3: ${error.message}`
-        : String(error)
+      error instanceof Error ? `Error downloading file from S3: ${error.message}` : String(error)
     );
   }
 };
@@ -89,9 +80,7 @@ export const uploadToS3 = async (
     await sendEmail(videoDocument);
     await updateDocument(process.env.VIDEO_ID as string, {
       error:
-        error instanceof Error
-          ? `Error uploading file to S3: ${error.message}`
-          : String(error),
+        error instanceof Error ? `Error uploading file to S3: ${error.message}` : String(error),
       status: 'Erro',
     });
   }

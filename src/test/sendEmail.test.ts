@@ -4,7 +4,9 @@ import { Logger } from '../logger';
 import { sendEmail } from '../sendEmail';
 import type { VideoDocument } from '../videoDocument';
 
-jest.mock('../logger');
+jest.mock('../logger', () => ({
+  Logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() },
+}));
 
 describe('sendEmail', () => {
   const mockSend = jest.fn();
