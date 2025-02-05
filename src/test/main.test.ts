@@ -28,7 +28,10 @@ jest.mock('../mongodb', () => ({
   updateDocument: jest.fn(),
 }));
 jest.mock('../sendEmail');
-jest.mock('../logger');
+jest.mock('../logger', () => ({
+  Logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() },
+}));
+
 jest.mock('../aws', () => ({
   downloadFromS3: jest.fn(),
 }));

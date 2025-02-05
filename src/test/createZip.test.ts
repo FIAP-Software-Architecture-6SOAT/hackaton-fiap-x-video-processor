@@ -9,7 +9,9 @@ import type { VideoDocument } from '../videoDocument';
 
 jest.mock('fs');
 jest.mock('archiver');
-jest.mock('../logger');
+jest.mock('../logger', () => ({
+  Logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() },
+}));
 jest.mock('../aws', () => ({
   uploadToS3: jest.fn(),
 }));
