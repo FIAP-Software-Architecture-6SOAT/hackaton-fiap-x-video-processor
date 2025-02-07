@@ -26,5 +26,10 @@ docker compose down
 ```
 
 ## Evidência de cobertura de testes
-
 ![Evidência de cobertura de testes](coverage.jpg)
+
+## Desenho da modelagem banco de dados
+![Desenho da modelagem banco de dados](database_modeling.jpg)
+
+## Desenho da arquitetura
+![Desenho da arquitetura](architecture.png)
